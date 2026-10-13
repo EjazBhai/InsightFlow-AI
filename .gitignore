@@ -1,0 +1,16 @@
+.venv/
+.packages/
+.tmp/
+src/*.egg-info/
+__pycache__/
+.pytest_cache/
+.coverage
+.mypy_cache/
+.ruff_cache/
+.env
+data/raw/
+data/processed/
+data/*.duckdb
+reports/*.json
+*.parquet
+*.xlsx
