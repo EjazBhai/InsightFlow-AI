@@ -198,12 +198,8 @@ def ai_analyst() -> None:
         "Ask your data anything",
         "Query retail and sales data using natural language. Every query is validated before execution.",
         "AI ANALYST",
-    )
-    if settings.model_provider == "mock":
-        st.info(
-            "Demo planner active: this local build uses deterministic query planning rather than a hosted LLM.",
-            icon=":material/info:",
         )
+
     suggestions = [
         "What were the monthly net sales trends?",
         "Which countries generated the most revenue?",
@@ -366,10 +362,7 @@ def data_quality() -> None:
         }
     )
     st.dataframe(details, hide_index=True, width="stretch")
-    st.info(
-        "Cancellation invoices and negative quantities remain in the analytical dataset. Net sales reflects returns; missing customer IDs are retained without substitute identities.",
-        icon=":material/info:",
-    )
+    
 
 
 def settings_page() -> None:
