@@ -1,14 +1,22 @@
+﻿
 services:
   api:
     build: .
     command: sh -c "python scripts/prepare_data.py && uvicorn insightflow.api.app:app --host 0.0.0.0 --port 8000"
-    ports: ["8000:8000"]
-    volumes: ["insightflow-data:/app/data"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - insightflow-data:/app/data
+
   dashboard:
     build: .
     command: streamlit run apps/streamlit_app/app.py --server.address 0.0.0.0 --server.port 8501
-    ports: ["8501:8501"]
-    depends_on: [api]
-    volumes: ["insightflow-data:/app/data"]
+    ports:
+      - "8502:8501"
+    depends_on:
+      - api
+    volumes:
+      - insightflow-data:/app/data
+
 volumes:
   insightflow-data:
