@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["bandit>=1.7", "mypy>=1.11", "pytest>=8.3", "pytest-cov>=5", "ruff>=0.6"]
+dev = ["bandit>=1.7", "mypy>=1.11", "pandas-stubs>=2.2", "pytest>=8.3", "pytest-cov>=5", "ruff>=0.6"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
@@ -23,6 +23,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B"]
+ignore = ["E501"] # Ruff's formatter is the canonical wrapping rule; long SQL/CSS literals remain readable.
 
 [tool.mypy]
 python_version = "3.11"

@@ -1,4 +1,5 @@
 """Deterministic UCI Online Retail ingestion with documented quality decisions."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -7,7 +8,16 @@ from pathlib import Path
 
 import pandas as pd
 
-REQUIRED_COLUMNS = {"InvoiceNo", "StockCode", "Description", "Quantity", "InvoiceDate", "UnitPrice", "CustomerID", "Country"}
+REQUIRED_COLUMNS = {
+    "InvoiceNo",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "UnitPrice",
+    "CustomerID",
+    "Country",
+}
 PIPELINE_VERSION = "1.0"
 
 
@@ -40,24 +50,42 @@ def prepare_data(source: Path, output: Path) -> QualityReport:
     frame["Quantity"] = pd.to_numeric(frame["Quantity"], errors="coerce")
     frame["UnitPrice"] = pd.to_numeric(frame["UnitPrice"], errors="coerce")
     invalid = (
-        frame["InvoiceNo"].isna() | (frame["InvoiceNo"] == "") | frame["InvoiceDate"].isna()
-        | frame["Quantity"].isna() | frame["UnitPrice"].isna() | (frame["UnitPrice"] < 0)
+        frame["InvoiceNo"].isna()
+        | (frame["InvoiceNo"] == "")
+        | frame["InvoiceDate"].isna()
+        | frame["Quantity"].isna()
+        | frame["UnitPrice"].isna()
+        | (frame["UnitPrice"] < 0)
     )
     rejected = int(invalid.sum())
     frame = frame.loc[~invalid].copy()
     before_dedupe = len(frame)
     frame = frame.drop_duplicates()
-    frame["is_cancellation"] = frame["InvoiceNo"].str.startswith("C", na=False) | (frame["Quantity"] < 0)
+    frame["is_cancellation"] = frame["InvoiceNo"].str.startswith("C", na=False) | (
+        frame["Quantity"] < 0
+    )
     frame["revenue"] = frame["Quantity"] * frame["UnitPrice"]
-    frame = frame.rename(columns={
-        "InvoiceNo": "invoice_no", "StockCode": "stock_code", "Description": "description",
-        "Quantity": "quantity", "InvoiceDate": "invoice_date", "UnitPrice": "unit_price",
-        "CustomerID": "customer_id", "Country": "country",
-    })
+    frame = frame.rename(
+        columns={
+            "InvoiceNo": "invoice_no",
+            "StockCode": "stock_code",
+            "Description": "description",
+            "Quantity": "quantity",
+            "InvoiceDate": "invoice_date",
+            "UnitPrice": "unit_price",
+            "CustomerID": "customer_id",
+            "Country": "country",
+        }
+    )
     output.parent.mkdir(parents=True, exist_ok=True)
     frame.to_parquet(output, index=False)
     return QualityReport(
-        source=str(source), processed_at=datetime.now(timezone.utc).isoformat(), input_rows=original_count,
-        output_rows=len(frame), duplicates_removed=before_dedupe - len(frame), invalid_rows_rejected=rejected,
-        cancellation_rows=int(frame["is_cancellation"].sum()), missing_customer_ids=int(frame["CustomerID"].isna().sum()),
+        source=str(source),
+        processed_at=datetime.now(timezone.utc).isoformat(),
+        input_rows=original_count,
+        output_rows=len(frame),
+        duplicates_removed=before_dedupe - len(frame),
+        invalid_rows_rejected=rejected,
+        cancellation_rows=int(frame["is_cancellation"].sum()),
+        missing_customer_ids=int(frame["customer_id"].isna().sum()),
     )
