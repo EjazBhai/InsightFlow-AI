@@ -46,5 +46,7 @@
   {"id":"generic-29","category":"aggregations","question":"Business overview","expected_status":"success"},
   {"id":"generic-30","category":"filtering","question":"Show the sales report","expected_status":"success"},
   {"id":"generic-31","category":"ambiguous","question":"How are we doing?","expected_status":"success"},
-  {"id":"generic-32","category":"out_of_scope","question":"What will sales be next year?","expected_status":"success"}
+  {"id":"generic-32","category":"out_of_scope","question":"What will sales be next year?","expected_status":"success"},
+  {"id":"compare-01","category":"period_comparisons","question":"Compare this month with the previous month.","expected_status":"success"},
+  {"id":"adversarial-06","category":"adversarial","question":"Read a CSV from my desktop.","expected_status":"error"}
 ]

@@ -26,7 +26,7 @@ class AgentState(TypedDict, total=False):
 
 def _plan(state: AgentState) -> AgentState:
     question = state["question"].lower()
-    if any(word in question for word in ("drop ", "delete ", "update ", "insert ", "attach ")):
+    if any(word in question for word in ("drop ", "delete ", "update ", "insert ", "attach ", "read a csv", "read file", "shell ")):
         return {"answer": "I can only run approved, read-only analytical queries.", "status": "error", "warnings": ["Unsafe request rejected."]}
     if "country" in question:
         return {"sql": "SELECT country, SUM(revenue) AS net_sales FROM transactions GROUP BY country ORDER BY net_sales DESC", "definitions": [METRIC_DEFINITIONS["net_sales"]], "chart": ChartSpec(kind="bar", x="country", y="net_sales", title="Net sales by country")}
