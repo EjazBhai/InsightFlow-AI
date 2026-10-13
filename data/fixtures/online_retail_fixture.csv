@@ -1,0 +1,8 @@
+InvoiceNo,StockCode,Description,Quantity,InvoiceDate,UnitPrice,CustomerID,Country
+10001,A1,Blue Widget,10,2024-01-05 09:00:00,5.00,101,United Kingdom
+10002,A2,Red Widget,4,2024-01-15 10:00:00,12.50,102,France
+10003,A1,Blue Widget,6,2024-02-02 11:00:00,5.00,101,United Kingdom
+C10003,A1,Blue Widget,-2,2024-02-10 11:30:00,5.00,101,United Kingdom
+10004,A3,Green Widget,8,2024-02-17 12:00:00,7.50,,Germany
+10005,A2,Red Widget,3,2024-03-01 14:00:00,12.50,103,France
+10006,A1,Blue Widget,2,2024-03-10 15:00:00,5.00,104,United Kingdom
