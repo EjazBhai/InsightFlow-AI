@@ -9,5 +9,5 @@ jobs:
         with: {python-version: '3.12'}
       - run: pip install '.[dev]'
       - run: ruff check .
-      - run: pytest -m 'not performance' --cov=insightflow
+      - run: pytest tests -m 'not performance' --cov=insightflow
       - run: docker build -t insightflow-ai .
