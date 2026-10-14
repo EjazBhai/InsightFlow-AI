@@ -61,9 +61,26 @@ def validate_readonly_sql(sql: str, max_rows: int = 500) -> str:
             and column.name.lower() not in aliases
         ):
             raise SQLSafetyError(f"Column '{column.name}' is not approved.")
+
     limit = parsed.args.get("limit")
     if limit is None:
         parsed = parsed.limit(max_rows)
-    elif int(limit.expression.name) > max_rows:
-        parsed = parsed.limit(max_rows)
+    else:
+        expression = limit.expression
+
+        # Only accept a simple, non-negative integer LIMIT.
+        if not isinstance(expression, exp.Literal) or expression.is_string:
+            raise SQLSafetyError("LIMIT must be a numeric integer literal.")
+
+        try:
+            requested_rows = int(expression.this)
+        except (TypeError, ValueError) as exc:
+            raise SQLSafetyError("LIMIT must be a numeric integer literal.") from exc
+
+        if requested_rows < 0:
+            raise SQLSafetyError("LIMIT cannot be negative.")
+
+        if requested_rows > max_rows:
+            parsed = parsed.limit(max_rows)
+
     return parsed.sql(dialect="duckdb")
