@@ -1,169 +1,107 @@
 # InsightFlow AI
 
-**A local-first, safety-focused business intelligence analyst that turns natural-language questions into validated SQL and actionable analytics.**
+<div align="center">
 
-InsightFlow AI is a demonstration application for exploring business data through a Streamlit dashboard and a FastAPI backend. Its workflow combines agent orchestration, SQL validation, DuckDB, and Parquet-based data processing to make analytical questions easier to ask and their results easier to inspect.
+# ✨ InsightFlow AI
 
-> **Project status:** Runnable local application and development project. Cloud deployment has not yet been verified. Run the supplied tests and evaluation scripts to obtain measurements for your environment.
+### Ask questions. Get insights. Trust the guardrails.
 
-## Table of contents
+**An AI-powered analytics assistant that transforms natural-language questions into SQL, validates queries, and delivers actionable insights from business data.**
 
-- [InsightFlow AI](#insightflow-ai)
-  - [Table of contents](#table-of-contents)
-  - [Problem statement](#problem-statement)
-  - [Solution](#solution)
-  - [Features](#features)
-  - [Architecture](#architecture)
-  - [Technology stack](#technology-stack)
-  - [Repository structure](#repository-structure)
-  - [Prerequisites](#prerequisites)
-  - [Getting started](#getting-started)
-    - [1. Clone the repository](#1-clone-the-repository)
-    - [2. Create a virtual environment](#2-create-a-virtual-environment)
-    - [3. Install dependencies](#3-install-dependencies)
-    - [4. Prepare the fixture data](#4-prepare-the-fixture-data)
-    - [5. Start the API](#5-start-the-api)
-    - [6. Start the dashboard](#6-start-the-dashboard)
-  - [Run with Docker Compose](#run-with-docker-compose)
-  - [API documentation](#api-documentation)
-  - [Testing and evaluation](#testing-and-evaluation)
-  - [Data provenance and metric definitions](#data-provenance-and-metric-definitions)
-  - [Security design](#security-design)
-  - [Limitations](#limitations)
-  - [Deployment considerations](#deployment-considerations)
-  - [Roadmap](#roadmap)
-  - [License](#license)
+[🚀 Live Demo](https://insightflow-ai-v1pc.onrender.com) · [📂 Source Code](https://github.com/EjazBhai/InsightFlow-AI) · [🐛 Report an Issue](https://github.com/EjazBhai/InsightFlow-AI/issues)
 
-## Problem statement
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![DuckDB](https://img.shields.io/badge/DuckDB-Analytics-FFF000?style=for-the-badge&logo=duckdb&logoColor=black)
+![Groq](https://img.shields.io/badge/LLM-Groq-F55036?style=for-the-badge)
+![License](https://img.shields.io/badge/License-See%20LICENSE-lightgrey?style=for-the-badge)
 
-Business users often need answers to questions such as:
+</div>
 
-- How are sales changing over time?
-- Which products or customer groups contribute to sales?
-- How should returns and cancellations be reflected in reporting?
-- Can an analytical result be explained and reproduced?
+---
 
-Traditional workflows may require users to understand SQL, navigate multiple tools, or rely on dashboards that do not make metric definitions and data assumptions clear.
+## 💡 The idea
 
-Natural-language analytics can simplify this workflow, but executing model-generated SQL without strict controls can introduce incorrect queries, misleading results, or unsafe database access.
+Business data is valuable. Getting answers from it shouldn't require everyone to know SQL.
 
-## Solution
+InsightFlow AI lets users ask analytical questions in natural language and follows a controlled workflow to generate or select SQL, validate it, execute permitted queries, and present results through an interactive dashboard.
 
-InsightFlow AI demonstrates a controlled analytics workflow:
+**The goal:** make analytics more accessible without treating AI-generated SQL as automatically trustworthy.
 
-1. Accept an analytical question through the application.
-2. Process the question through the configured workflow.
-3. Construct or select an analytical query.
-4. Validate the SQL against an explicit safety policy.
-5. Execute permitted read-only queries against approved DuckDB data.
-6. Present the results and visualizations in the dashboard.
+## ⚡ What it does
 
-The application includes a deterministic local demo mode that does not require a paid model API. Optional model integration is configuration-dependent and should be tested separately.
+| Capability | Description |
+|---|---|
+| 💬 Natural-language analytics | Ask questions about business transactions in plain English |
+| 🤖 LLM integration | Generate SQL using the configured Groq provider; Ollama support is also available in the project |
+| 🛡️ SQL guardrails | Parse and validate queries against an explicit SQL safety policy |
+| 🗄️ Analytical execution | Query approved data using DuckDB |
+| 📊 Interactive dashboard | Explore results through the Streamlit interface |
+| 🔄 Retry and correction | Retry supported failures through the agent workflow |
+| 🧪 Automated tests | Exercise application behavior and security checks |
+| 📈 Evaluation framework | Measure expected status, adversarial rejection, and latency |
 
-## Features
+## 🖥️ Try the live application
 
-- **Interactive analytics dashboard:** A Streamlit interface for exploring analytical results.
-- **API backend:** FastAPI endpoints for application operations.
-- **Agent workflow:** LangGraph-based workflow organization.
-- **SQL safety boundary:** SQLGlot parsing and policy checks before query execution.
-- **Local analytical storage:** DuckDB and Parquet for analytical data workflows.
-- **Data preparation:** A script to prepare the included deterministic fixture data.
-- **Metric handling:** Explicit treatment of sales, returns, and cancellations.
-- **Automated checks:** Pytest, coverage, Ruff, and GitHub Actions configuration.
-- **Container support:** Dockerfile and Docker Compose configuration for local multi-service execution.
+**[Open InsightFlow AI →](https://insightflow-ai-v1pc.onrender.com)**
 
-## Architecture
+Example questions to try:
 
-```text
-User
-  |
-  v
-Streamlit dashboard
-  |
-  v
-FastAPI backend
-  |
-  v
-LangGraph workflow
-  |
-  v
-SQLGlot validation and safety policy
-  |
-  v
-DuckDB query execution
-  |
-  v
-Approved analytical data (Parquet)
-  |
-  v
-Results and visualizations
+- Which countries generated the most revenue?
+- How many cancellations are there?
+- Show total sales by country for the dataset.
+
+*The hosted application has been manually verified. The included dataset is a small demonstration fixture, not a production-scale business dataset.*
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    A["User question"] --> B["Streamlit dashboard"]
+    B --> C["Analytics agent · LangGraph"]
+    C --> D["LLM provider"]
+    D --> E["Generated SQL"]
+    E --> F{"SQL safety validation"}
+    F -->|Rejected| G["Safe error / retry"]
+    G --> C
+    F -->|Approved| H["DuckDB read-only execution"]
+    H --> I["Result rows"]
+    I --> J["Summary and visualizations"]
+    J --> B
 ```
 
-The SQL safety policy is an essential boundary between query generation and database execution. Queries should be rejected when they exceed the supported SQL policy.
+The safety boundary is deliberate: model-generated SQL must pass validation before it reaches the analytical database.
 
-## Technology stack
+## 🔐 Security by design
 
-| Component | Technology | Purpose |
-|---|---|---|
-| User interface | Streamlit | Dashboard and interaction |
-| API | FastAPI | Backend HTTP endpoints |
-| Workflow orchestration | LangGraph | Organize analytical steps |
-| SQL parsing and validation | SQLGlot | Parse and validate SQL |
-| Analytical engine | DuckDB | Local analytical query execution |
-| Data processing | pandas, PyArrow | Tabular processing and Parquet support |
-| Visualization | Plotly | Interactive charts |
-| Configuration and schemas | Pydantic, pydantic-settings | Settings and data validation |
-| Testing | Pytest, pytest-cov | Automated tests and coverage |
-| Code quality | Ruff | Linting and import checks |
-| Packaging and deployment | Python packaging, Docker | Installation and container execution |
+InsightFlow AI applies application-level SQL controls intended to reduce the risk of unsafe database operations.
 
-## Repository structure
+- Restricts execution to supported read-only queries.
+- Validates SQL structure before execution.
+- Limits accessible tables and approved columns.
+- Rejects prohibited statements and operations.
+- Applies a maximum result-row limit.
+- Keeps model-provider credentials in environment configuration rather than application source.
 
-```text
-InsightFlow-AI/
-├── .github/
-│   └── workflows/          # CI workflow
-├── apps/
-│   └── streamlit_app/      # Dashboard application and UI helpers
-├── data/
-│   └── fixtures/           # Small deterministic fixture data
-├── docs/                   # Project documentation
-├── evaluations/             # Evaluation inputs and related assets
-├── scripts/
-│   ├── prepare_data.py      # Prepare fixture data
-│   ├── run_evaluation.py    # Run the evaluation suite
-│   └── smoke_test.py        # API smoke test
-├── src/
-│   └── insightflow/
-│       ├── agent/           # Analytical workflow
-│       ├── analytics/       # Metrics
-│       ├── api/             # FastAPI application
-│       ├── data/            # Data pipeline
-│       ├── database/        # Data repository
-│       ├── schemas/         # Data models
-│       └── security/        # SQL safety policy
-├── tests/                   # Automated tests
-├── .env.example             # Example configuration
-├── Dockerfile
-├── docker-compose.yml
-├── pyproject.toml            # Package metadata and dependencies
-├── requirements.txt          # Runtime dependency installation
-└── README.md
-```
+**Important:** These are defense-in-depth measures, not a guarantee against every attack. Production use requires additional adversarial testing, authentication where appropriate, monitoring, and deployment security review.
 
-## Prerequisites
+## 🧰 Technology stack
 
-For local development:
+| Layer | Technology |
+|---|---|
+| Interface | Streamlit |
+| API | FastAPI |
+| Agent orchestration | LangGraph |
+| LLM integration | Groq; Ollama provider support |
+| SQL parsing and validation | SQLGlot and project-specific policy |
+| Query execution | DuckDB |
+| Data processing | pandas, PyArrow, Parquet |
+| Visualization | Plotly |
+| Testing | Pytest |
+| Code quality | Ruff |
+| Deployment | Render demo; Docker configuration available |
 
-- Python 3.11 or newer
-- Git
-- PowerShell on Windows, or a compatible shell on Linux/macOS
-
-For container execution:
-
-- Docker Desktop on Windows/macOS, or Docker Engine with the Compose plugin on Linux
-
-## Getting started
+## 🚀 Run locally
 
 ### 1. Clone the repository
 
@@ -172,111 +110,60 @@ git clone https://github.com/EjazBhai/InsightFlow-AI.git
 cd InsightFlow-AI
 ```
 
-The default GitHub branch may not yet contain the latest application code. Until the release is published to `main`, check out the branch containing the application:
-
-```powershell
-git switch feature/evaluation
-```
-
-### 2. Create a virtual environment
+### 2. Create and activate a virtual environment
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-If PowerShell blocks virtual-environment activation, use the environment's Python executable directly or follow your organization's script execution policy.
-
 ### 3. Install dependencies
-
-Install the project and its development tools:
 
 ```powershell
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-Alternatively, install the runtime dependencies listed in `requirements.txt`:
+If the development extra is unavailable in your checkout, use:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-### 4. Prepare the fixture data
+### 4. Configure the environment
+
+Create a local `.env` file based on `.env.example`. Configure the supported model provider and its credentials as required.
+
+**Never commit `.env` or API keys to GitHub.**
+
+### 5. Prepare the demonstration dataset
 
 ```powershell
 python scripts/prepare_data.py
 ```
 
-### 5. Start the API
+### 6. Start the dashboard
 
-In the first terminal:
+```powershell
+streamlit run apps/streamlit_app/app.py
+```
+
+Open **http://localhost:8501**.
+
+To run the API separately, use a second terminal:
 
 ```powershell
 uvicorn insightflow.api.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### 6. Start the dashboard
+Check the current configuration and API routes if a particular endpoint is unavailable in your environment.
 
-In a second terminal, activate the same virtual environment and run:
+## 🧪 Testing and evaluation
 
-```powershell
-streamlit run apps/streamlit_app/app.py --server.port 8501
-```
-
-Open the dashboard at `http://localhost:8501`.
-
-## Run with Docker Compose
-
-Docker Compose provides the API and dashboard services. From the project root:
+Run the test suite:
 
 ```powershell
-docker compose config
-docker compose up -d --build
-docker compose ps
-```
-
-With the current local port mapping, the intended addresses are:
-
-| Service | Local address |
-|---|---|
-| Dashboard | `http://localhost:8502` |
-| API | `http://localhost:8000` |
-| Interactive API documentation | `http://localhost:8000/docs` |
-| API health check | `http://localhost:8000/health/live` |
-
-Confirm the actual health response before considering the containers ready.
-
-View service logs:
-
-```powershell
-docker compose logs --tail 100 api dashboard
-```
-
-Stop the services:
-
-```powershell
-docker compose down
-```
-
-The named Docker volume is intended to preserve data across container recreation. Inspect the Compose configuration before removing volumes, because deleting a volume may delete stored data.
-
-## API documentation
-
-When the API is running, visit:
-
-- Swagger UI: `http://localhost:8000/docs`
-- OpenAPI schema: `http://localhost:8000/openapi.json`
-- Liveness endpoint: `http://localhost:8000/health/live`
-
-Endpoint availability and request schemas should be verified against the running version of the application.
-
-## Testing and evaluation
-
-Run the automated test suite, excluding tests marked as performance tests:
-
-```powershell
-python -m pytest -v -m "not performance" --cov=insightflow
+python -m pytest -q
 ```
 
 Run lint checks:
@@ -285,92 +172,101 @@ Run lint checks:
 python -m ruff check .
 ```
 
-Check the installed environment for dependency conflicts:
-
-```powershell
-python -m pip check
-```
-
-Run the project evaluation:
+Run the evaluation script:
 
 ```powershell
 python scripts/run_evaluation.py
 ```
 
-Run the smoke test after starting the API:
+### Current evaluation snapshot
 
-```powershell
-python scripts/smoke_test.py
+The latest recorded evaluation report showed:
+
+| Metric | Recorded result |
+|---|---:|
+| Questions evaluated | 50 |
+| Expected-status matches | 50/50 (100%) |
+| Adversarial safety checks | 6/6 (100%) |
+| Mean latency | 23.05 ms |
+| SQL result accuracy | Not measured |
+| Real-provider cost | Not measured |
+
+**Interpretation matters:** the recorded evaluation used mock-mode behavior. Its latency is not representative of real LLM response times, and status matching does not establish that generated SQL returns correct results.
+
+One real Groq query was also tested against the local fixture: the sales-by-country result matched the known fixture baseline. A broader, independently verified execution-accuracy benchmark remains future work.
+
+## 🗂️ Project structure
+
+```text
+InsightFlow-AI/
+├── apps/
+│   └── streamlit_app/       # Streamlit dashboard
+├── data/
+│   └── fixtures/            # Demonstration data
+├── docs/                    # Documentation
+├── evaluations/             # Evaluation questions and assets
+├── scripts/
+│   ├── prepare_data.py      # Prepare fixture data
+│   ├── run_evaluation.py    # Run evaluations
+│   └── smoke_test.py        # API smoke test
+├── src/
+│   └── insightflow/
+│       ├── agent/           # Agent workflow
+│       ├── analytics/       # Analytics and metrics
+│       ├── api/             # FastAPI application
+│       ├── data/            # Data preparation
+│       ├── database/        # DuckDB repository
+│       ├── schemas/         # Data models
+│       └── security/        # SQL safety policy
+├── tests/                   # Automated tests
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── pyproject.toml
+└── README.md
 ```
 
-Report the actual test counts, coverage, and evaluation results produced by these commands. Do not treat a successful lint check as evidence that runtime behavior or deployment has been verified.
+## 🛣️ Roadmap
 
-## Data provenance and metric definitions
+- [x] Interactive analytics application
+- [x] Configurable LLM integration
+- [x] SQL validation before execution
+- [x] DuckDB-backed analytical queries
+- [x] Hosted demo
+- [x] Initial automated evaluation framework
+- [ ] Independently verified execution accuracy across a larger question set
+- [ ] Expanded SQL-injection and adversarial benchmark
+- [ ] Real-provider latency and cost reporting
+- [ ] LLM tracing and observability with Langfuse or a similar platform
+- [ ] Recorded demo GIF and screenshots
+- [ ] Further production hardening and monitoring
 
-The project references the [UCI Online Retail dataset](https://archive.ics.uci.edu/dataset/352/online+retail), hosted by the UCI Machine Learning Repository. The included fixture is a small deterministic test dataset and is not representative of a production deployment.
+## 📚 Data and metric conventions
 
-The intended metric conventions are:
+The repository references the [UCI Online Retail dataset](https://archive.ics.uci.edu/dataset/352/online+retail). The included fixture is small and intended for development and testing.
 
-- **Gross sales:** positive quantity multiplied by unit price.
-- **Net sales:** quantity multiplied by unit price, including negative return or cancellation records.
-- **Cancellations:** records identified by invoice IDs beginning with `C` or by negative quantities, according to the pipeline's implemented rules.
-- **Profit:** not calculated from sales alone; cost and margin information is required.
-- **Missing customer IDs:** should remain missing rather than being invented.
+Sales, returns, and cancellations must be interpreted using the project's implemented metric definitions. Sales alone do not establish profit because cost and margin information are required.
 
-Use these definitions consistently when comparing results. Confirm the implemented transformations before using outputs for business decisions.
+## 🤝 Contributing
 
-## Security design
+Issues, bug reports, and improvements are welcome.
 
-The project's SQL safety policy is designed to constrain database access:
+1. Fork the repository.
+2. Create a feature branch.
+3. Add or update tests.
+4. Run the relevant test and lint checks.
+5. Open a pull request with a clear description of the change.
 
-- Permit only supported read-only `SELECT` queries.
-- Validate query structure before execution.
-- Restrict access to approved tables and columns.
-- Reject unsupported statements and prohibited operations.
-- Apply result-size limits.
-- Avoid exposing filesystem, shell, or database-write tools to the analytical interface.
+## 📄 License
 
-These controls are application-level safeguards, not a substitute for production security review. Before exposing the service to a network, validate the policy against adversarial SQL, configure network access and authentication appropriately, and use least-privilege deployment settings.
+See the repository's [`LICENSE`](LICENSE) file for licensing terms.
 
-## Limitations
+---
 
-The current project is a development and demonstration foundation. The following capabilities are not claimed as completed:
+<div align="center">
 
-- Automatic downloading and production ingestion of the full source dataset.
-- Persistent chat history.
-- Optional Chroma-based retrieval.
-- A verified hosted-model integration.
-- A verified cloud deployment with production monitoring and authentication.
+**Built to explore a practical question: how can we make AI-driven analytics useful, inspectable, and safer?**
 
-Model integration and deployment depend on configuration and require separate validation.
+⭐ If you find the project interesting, consider starring the repository.
 
-## Deployment considerations
-
-Before deploying outside a local development environment:
-
-1. Verify API and dashboard health checks in the built image.
-2. Configure secrets through the hosting platform's secret manager or environment settings.
-3. Restrict network access and enable suitable authentication and TLS at the deployment boundary.
-4. Configure persistent storage and backups for data that must survive restarts.
-5. Review container resource limits, logs, restart policy, and monitoring.
-6. Re-run automated tests and smoke tests against the release image.
-7. Pin or lock dependency versions for reproducible production builds.
-8. Verify all endpoints and security controls in the target environment.
-
-The supplied Docker configuration supports local container execution; production readiness should be claimed only after these checks are completed in the intended hosting environment.
-
-## Roadmap
-
-Potential next steps include:
-
-- Complete and verify a production-oriented Docker deployment.
-- Add reproducible dependency locking.
-- Expand evaluation cases for ambiguous natural-language questions and SQL safety.
-- Add integration tests for container startup and health checks.
-- Implement optional model-provider integration with explicit configuration.
-- Add operational observability and deployment documentation.
-- Publish the validated application code on the default GitHub branch.
-
-## License
-
-See the repository's `LICENSE` file for licensing terms.
+</div>
