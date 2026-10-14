@@ -39,6 +39,11 @@ def _unsafe_request(question: str) -> bool:
         r"\bread_(?:csv|parquet|json)\s*\(",
         r"\bpragma\b",
         r"\bwrite\s+(?:a\s+)?file\b",
+        r"\bread\s+(?:a\s+)?(?:csv|parquet|json)\s+"
+        r"(?:file|from|on|at|in)\b",
+        r"\b(?:my\s+)?(?:desktop|downloads|documents)\b",
+        r"\b(?:local|filesystem|file\s+system)\s+"
+        r"(?:file|path|directory|folder)\b",
         r"\bexecute\s+(?:a\s+)?shell\b",
     )
     return any(re.search(pattern, question, re.IGNORECASE) for pattern in patterns)
