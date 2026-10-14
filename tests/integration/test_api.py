@@ -11,6 +11,7 @@ from insightflow.database import AnalyticsRepository
 def test_health_and_agent(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("INSIGHTFLOW_DATABASE_PATH", str(tmp_path / "test.duckdb"))
     monkeypatch.setenv("INSIGHTFLOW_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INSIGHTFLOW_MODEL_PROVIDER", "mock")
     settings = get_settings()
     parquet = tmp_path / "data.parquet"
     prepare_data(Path("data/fixtures/online_retail_fixture.csv"), parquet)
